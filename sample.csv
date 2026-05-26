@@ -1,0 +1,11 @@
+source,category,raw_value,raw_unit
+SAP,Fuel,100,L
+UTILITY,Electricity,-500,kWh
+TRAVEL,Flight,15000,km
+SAP,Diesel,50,
+UTILITY,Electricity,800,kWh
+TRAVEL,Hotel Stay,300,km
+SAP,Procurement,2500,kg
+TRAVEL,Ground Transport,-20,km
+UTILITY,Solar Energy,12000,kWh
+SAP,Fuel,75,L
