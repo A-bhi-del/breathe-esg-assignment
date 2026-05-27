@@ -76,4 +76,12 @@ py manage.py runserver
 ### Author 
 ```bash
 Abhishek Gupta
+```
 
+## Live Demo
+
+Frontend:
+https://breathe-esg-assignment-opal.vercel.app/
+
+Backend API:
+https://breathe-esg-assignment-j6az.onrender.com
