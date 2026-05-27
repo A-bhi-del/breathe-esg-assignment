@@ -5,8 +5,9 @@ function App() {
 
   const [records, setRecords] = useState([]);
   const [file, setFile] = useState(null);
-
+  const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("ALL");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -15,14 +16,16 @@ function App() {
   const fetchData = async () => {
 
     try {
-
+      setLoading(true);
       const response = await axios.get(
         "http://127.0.0.1:8000/api/emissions/"
       );
 
       setRecords(response.data);
+      setLoading(false);
 
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
@@ -81,15 +84,27 @@ function App() {
 
   const filteredRecords = records.filter((record) => {
 
-    if (filter === "SUSPICIOUS") {
-      return record.is_suspicious;
-    }
+    const matchesFilter =
 
-    if (filter === "APPROVED") {
-      return record.approved;
-    }
+      filter === "ALL"
+        ? true
+        : filter === "SUSPICIOUS"
+        ? record.is_suspicious
+        : record.approved;
 
-    return true;
+    const matchesSearch =
+
+      record.source
+        .toLowerCase()
+        .includes(search.toLowerCase())
+
+      ||
+
+      record.category
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+    return matchesFilter && matchesSearch;
   });
 
   const suspiciousCount = records.filter(
@@ -214,6 +229,19 @@ function App() {
       </div>
     </div>
 
+    {/* SEARCH BAR */}
+    <div className="mb-6">
+
+      <input
+        type="text"
+        placeholder="Search by source or category..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full md:w-[400px] border border-gray-300 rounded-xl px-4 py-3"
+      />
+
+    </div>
+
     {/* FILTERS */}
 
     <div className="flex gap-4 mb-6">
@@ -244,13 +272,15 @@ function App() {
     {/* TABLE */}
 
     <div className="bg-white rounded-2xl shadow overflow-hidden">
+      {loading && (
+        <div className="mb-4 text-blue-600 font-semibold">
+          Loading records...
+        </div>
+      )}
 
       <table className="w-full">
-
         <thead className="bg-gray-200">
-
           <tr>
-
             <th className="p-4 text-left">
               ID
             </th>
@@ -285,99 +315,115 @@ function App() {
 
         <tbody>
 
-          {filteredRecords.map((record) => (
+          {filteredRecords.length === 0 ? (
 
-            <tr
-              key={record.id}
-              className={`border-t hover:bg-gray-50 ${
-                record.is_suspicious
-                  ? "bg-red-50"
-                  : record.approved
-                  ? "bg-green-50"
-                  : ""
-              }`}
-            >
+            <tr>
 
-              <td className="p-4">
-                {record.id}
-              </td>
-
-              <td className="p-4 font-semibold">
-                {record.source}
-              </td>
-
-              <td className="p-4">
-                {record.category}
-              </td>
-
-              <td className="p-4">
-                {record.raw_value}
-              </td>
-
-              <td className="p-4">
-                {record.raw_unit}
-              </td>
-
-              {/* STATUS */}
-
-              <td className="p-4">
-
-                <span
-                  className={`px-3 py-1 rounded-full text-white text-sm font-semibold
-                  ${
-                    record.status === "APPROVED"
-                      ? "bg-green-500"
-                      : record.status === "REVIEW"
-                      ? "bg-yellow-500"
-                      : record.status === "FAILED"
-                      ? "bg-red-500"
-                      : "bg-blue-500"
-                  }`}
-                >
-                  {record.status}
-                </span>
-
-              </td>
-
-              {/* ACTIONS */}
-
-              <td className="p-4 flex gap-3">
-
-                {record.status !== "APPROVED" &&
-                  record.status !== "FAILED" && (
-
-                  <>
-
-                    <button
-                      onClick={() =>
-                        approveRecord(record.id)
-                      }
-                      className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
-                    >
-                      Approve
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        rejectRecord(record.id)
-                      }
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
-                    >
-                      Reject
-                    </button>
-
-                  </>
-
-                )}
-
+              <td
+                colSpan="7"
+                className="text-center py-10 text-gray-500"
+              >
+                No records found.
               </td>
 
             </tr>
 
-          ))}
+          ) : (
+
+            filteredRecords.map((record) => (
+
+              <tr
+                key={record.id}
+                className={`border-t hover:bg-gray-50 ${
+                  record.is_suspicious
+                    ? "bg-red-50"
+                    : record.approved
+                    ? "bg-green-50"
+                    : ""
+                }`}
+              >
+
+                <td className="p-4">
+                  {record.id}
+                </td>
+
+                <td className="p-4 font-semibold">
+                  {record.source}
+                </td>
+
+                <td className="p-4">
+                  {record.category}
+                </td>
+
+                <td className="p-4">
+                  {record.raw_value}
+                </td>
+
+                <td className="p-4">
+                  {record.raw_unit}
+                </td>
+
+                {/* STATUS */}
+
+                <td className="p-4">
+
+                  <span
+                    className={`px-3 py-1 rounded-full text-white text-sm font-semibold
+                    ${
+                      record.status === "APPROVED"
+                        ? "bg-green-500"
+                        : record.status === "REVIEW"
+                        ? "bg-yellow-500"
+                        : record.status === "FAILED"
+                        ? "bg-red-500"
+                        : "bg-blue-500"
+                    }`}
+                  >
+                    {record.status}
+                  </span>
+
+                </td>
+
+                {/* ACTIONS */}
+
+                <td className="p-4 flex gap-3">
+
+                  {record.status !== "APPROVED" &&
+                    record.status !== "FAILED" && (
+
+                    <>
+
+                      <button
+                        onClick={() =>
+                          approveRecord(record.id)
+                        }
+                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
+                      >
+                        Approve
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          rejectRecord(record.id)
+                        }
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+                      >
+                        Reject
+                      </button>
+
+                    </>
+
+                  )}
+
+                </td>
+
+              </tr>
+
+            ))
+
+          )}
 
         </tbody>
-
       </table>
 
     </div>
