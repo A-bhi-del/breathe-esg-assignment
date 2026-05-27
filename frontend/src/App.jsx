@@ -18,7 +18,7 @@ function App() {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://127.0.0.1:8000/api/emissions/"
+        "https://breathe-esg-assignment-j6az.onrender.com/api/emissions/"
       );
 
       setRecords(response.data);
@@ -39,7 +39,7 @@ function App() {
     try {
 
       await axios.post(
-        "http://127.0.0.1:8000/api/upload/",
+        "https://breathe-esg-assignment-j6az.onrender.com/api/upload/",
         formData
       );
 
@@ -57,7 +57,7 @@ function App() {
     try {
 
       await axios.post(
-        `http://127.0.0.1:8000/api/approve/${id}/`
+        `https://breathe-esg-assignment-j6az.onrender.com/api/approve/${id}/`
       );
 
       fetchData();
@@ -72,7 +72,7 @@ function App() {
     try {
 
       await axios.post(
-        `http://127.0.0.1:8000/api/reject/${id}/`
+        `https://breathe-esg-assignment-j6az.onrender.com/api/reject/${id}/`
       );
 
       fetchData();
